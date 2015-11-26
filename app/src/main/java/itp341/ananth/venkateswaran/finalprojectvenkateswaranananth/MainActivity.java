@@ -377,8 +377,7 @@ public class MainActivity extends AppCompatActivity implements
                             }
                         }
                         if (!exists) {
-                            // search for songs
-                            searchTracks(spotify, tempStreet);
+
                             Map<String, Object> body = new HashMap<>();
                             body.put("name", auto);
                             body.put("public", false);
@@ -392,26 +391,35 @@ public class MainActivity extends AppCompatActivity implements
                                 public void success(Playlist playlist, retrofit.client.Response response) {
                                     PLAYLIST_ID = playlist.id;
                                     Log.d(TAG, "Successfully created new playlist");
-                                    // Add tracks to auto-generated playlist
-                                    for (int i = 0; i < trackObjs.size(); i++) {
-                                        Map<String, Object> parameters = new HashMap<>();
-                                        parameters.put("uris", trackObjs.get(i).uri);
-                                        spotify.addTracksToPlaylist(USER_ID, PLAYLIST_ID, parameters, parameters, new SpotifyCallback<Pager<PlaylistTrack>>() {
-                                            @Override
-                                            public void failure(SpotifyError spotifyError) {
-                                                Log.d(TAG, "Error in adding tracks to auto-generated playlist: " + spotifyError);
+                                    spotify.searchTracks(tempStreet, new Callback<TracksPager>() {
+                                        @Override
+                                        public void success(TracksPager tracksPager, retrofit.client.Response response) {
+                                            Log.d(TAG, "Successfully searched for tracks");
+                                            Pager<Track> pt = tracksPager.tracks;
+                                            for (int i = 0; i < pt.items.size(); i++) {
+                                                Map<String, Object> parameters = new HashMap<>();
+                                                parameters.put("uris", pt.items.get(i).uri);
+                                                spotify.addTracksToPlaylist(USER_ID, PLAYLIST_ID, parameters, parameters, new SpotifyCallback<Pager<PlaylistTrack>>() {
+                                                    @Override
+                                                    public void failure(SpotifyError spotifyError) {
+                                                        Log.d(TAG, "Error in adding tracks to auto-generated playlist: " + spotifyError);
+                                                    }
+
+                                                    @Override
+                                                    public void success(Pager<PlaylistTrack> playlistTrackPager, retrofit.client.Response response) {
+                                                        Log.d(TAG, "Success in adding track to auto-generated playlist");
+                                                        //Toast.makeText(getApplicationContext(), "Saved to Auto-generated Playlist", Toast.LENGTH_LONG).show();
+
+                                                    }
+                                                });
                                             }
 
-                                            @Override
-                                            public void success(Pager<PlaylistTrack> playlistTrackPager, retrofit.client.Response response) {
-                                                Log.d(TAG, "Success in adding track to auto-generated playlist");
-                                                //Toast.makeText(getApplicationContext(), "Saved to Auto-generated Playlist", Toast.LENGTH_LONG).show();
-
-                                            }
-                                        });
-                                    }
-
-
+                                        }
+                                        @Override
+                                        public void failure(RetrofitError error) {
+                                            Log.d(TAG, "Error in search tracks: " + error);
+                                        }
+                                    });
                                 }
                             });
                         }
@@ -445,24 +453,6 @@ public class MainActivity extends AppCompatActivity implements
 
 
     public void searchTracks(SpotifyService spotify, String streetName) {
-        spotify.searchTracks(streetName, new Callback<TracksPager>() {
-            @Override
-            public void success(TracksPager tracksPager, retrofit.client.Response response) {
-                Log.d(TAG, "Successfully searched for tracks");
-                Pager<Track> pt = tracksPager.tracks;
-                for (int i = 0; i < pt.items.size(); i++) {
-                    Track track = pt.items.get(i);
-                    trackObjs.add(track);
-                    Log.d(TAG, track.name);
-                }
-
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Log.d(TAG, "Error in search tracks: " + error);
-            }
-        });
 
     }
 

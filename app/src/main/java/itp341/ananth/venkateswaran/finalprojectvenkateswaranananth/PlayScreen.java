@@ -61,7 +61,7 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
     Button previous;
     Button play;
     Button pause;
-   Button next;
+    Button next;
     TextView songTitle;
     TextView albumTitle;
     TextView artistTitle;
@@ -139,8 +139,8 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
 
 
 
-        street = (TextView) findViewById(R.id.streetName);
-        street.setText(STREET_NAME);
+        street = (TextView) findViewById(R.id.streetView);
+        street.append(" " + STREET_NAME);
 
         albumArt = (ImageView) findViewById(R.id.albumArt);
        previous = (Button) findViewById(R.id.prevBtn);
