@@ -96,6 +96,16 @@
         android:layout_marginTop="41dp">
 
         <Button
+            android:layout_width="90dp"
+            android:layout_height="wrap_content"
+            android:text="@string/previous"
+            android:id="@+id/prevBtn"
+            android:layout_marginLeft="10dp"
+            android:textSize="12sp"
+            android:layout_above="@+id/songView"
+            android:layout_toStartOf="@+id/streetView" />
+
+        <Button
             android:layout_width="62dp"
             android:layout_height="wrap_content"
             android:text="@string/pause"
@@ -125,15 +135,6 @@
             android:layout_alignTop="@+id/pauseBtn"
             android:layout_alignParentEnd="true" />
 
-        <Button
-            android:layout_width="90dp"
-            android:layout_height="wrap_content"
-            android:text="@string/previous"
-            android:id="@+id/prevBtn"
-            android:layout_marginLeft="10dp"
-            android:textSize="12sp"
-            android:layout_above="@+id/songView"
-            android:layout_toStartOf="@+id/streetView" />
     </LinearLayout>
 
 </RelativeLayout>
