@@ -58,10 +58,10 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
     private ArrayList<Track> trackObjs;
 
     TextView street;
-   // Button previous;
+    Button previous;
     Button play;
     Button pause;
-   // Button next;
+   Button next;
     TextView songTitle;
     TextView albumTitle;
     TextView artistTitle;
@@ -82,7 +82,7 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
         SPOTIFY_USER_ID = getIntent().getStringExtra("USER_ID");
         SPOTIFY_TRACK_ID = getIntent().getStringExtra("TRACK_ID");
         Log.d(TAG, "TRACK ID: " + SPOTIFY_TRACK_ID);
-       // SPOTIFY_PLAYLIST_ID = getIntent().getStringExtra("PLAYLIST_ID");
+       SPOTIFY_PLAYLIST_ID = getIntent().getStringExtra("PLAYLIST_ID");
         SPOTIFY_CLIENT_ID = getIntent().getStringExtra("CLIENT_ID");
         STREET_NAME = getIntent().getStringExtra("STREET");
 
@@ -98,7 +98,7 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
                 .build();
         final SpotifyService spotify = restAdapter.create(SpotifyService.class);
 
-        HashMap<String, Object> map = new HashMap<>();
+        /*HashMap<String, Object> map = new HashMap<>();
         map.put("country", "US");
         spotify.getTrack(SPOTIFY_TRACK_ID, map, new SpotifyCallback<Track>() {
             @Override
@@ -134,7 +134,7 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
                 });
 
             }
-        });
+        });*/
        // finalTrack = spotify.getTrack(SPOTIFY_TRACK_ID, map);
 
 
@@ -143,10 +143,10 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
         street.setText(STREET_NAME);
 
         albumArt = (ImageView) findViewById(R.id.albumArt);
-      //  previous = (Button) findViewById(R.id.prevBtn);
+       previous = (Button) findViewById(R.id.prevBtn);
         play = (Button) findViewById(R.id.playBtn);
         pause = (Button) findViewById(R.id.pauseBtn);
-       // next = (Button) findViewById(R.id.nextBtn);
+       next = (Button) findViewById(R.id.nextBtn);
 
         songTitle = (TextView) findViewById(R.id.songName);
         albumTitle = (TextView) findViewById(R.id.albumName);
@@ -156,7 +156,7 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
 
 
     // Get current playlist and add into list of tracks
-       /* spotify.getPlaylist(SPOTIFY_USER_ID, SPOTIFY_PLAYLIST_ID, new SpotifyCallback<Playlist>() {
+        spotify.getPlaylist(SPOTIFY_USER_ID, SPOTIFY_PLAYLIST_ID, new SpotifyCallback<Playlist>() {
 
             @Override
             public void failure(SpotifyError spotifyError) {
@@ -172,17 +172,32 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
                     tracksInPlaylist.add(track.track.uri);
                     trackObjs.add(track.track);
                 }
+                Config playerConfig = new Config(getApplicationContext(), SPOTIFY_ACCESS_TOKEN, SPOTIFY_CLIENT_ID);
+                mPlayer = Spotify.getPlayer(playerConfig, this, new Player.InitializationObserver() {
+                    @Override
+                    public void onInitialized(Player player) {
+                        mPlayer.addConnectionStateCallback(PlayScreen.this);
+                        mPlayer.addPlayerNotificationCallback(PlayScreen.this);
+                        mPlayer.play(tracksInPlaylist);
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        Log.e(TAG, "Could not initialize player: " + throwable.getMessage());
+                    }
+                });
+
             }
-        }); */
+        });
 
 
 
-        /*previous.setOnClickListener(new View.OnClickListener() {
+        previous.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mPlayer.skipToPrevious();
             }
-        });*/
+        });
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -195,12 +210,12 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
                 mPlayer.pause();
             }
         });
-       /* next.setOnClickListener(new View.OnClickListener() {
+        next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mPlayer.skipToNext();
             }
-        });*/
+        });
 
 
     }
@@ -237,7 +252,7 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
             default:
                 break;
         }
-        /*if (eventType.equals(EventType.TRACK_CHANGED)) {
+        if (eventType.equals(EventType.TRACK_CHANGED)) {
             for(int i = 0; i < tracksInPlaylist.size(); i++) {
                 if (tracksInPlaylist.get(i).equals(playerState.trackUri)) {
                     // Update titles
@@ -252,7 +267,7 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
                 }
 
             }
-        }*/
+        }
 
     }
 

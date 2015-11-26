@@ -11,15 +11,14 @@
 
     <ImageView
         android:layout_width="400dp"
-        android:layout_height="100dp"
+        android:layout_height="150dp"
         android:id="@+id/albumArt"
         android:src="@drawable/placeholder_car1"
         android:contentDescription="albumArt"
+        android:maxHeight="150dp"
+        android:maxWidth="400dp"
         android:layout_below="@+id/streetName"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="43dp"
-        android:maxHeight="200dp"
-        android:maxWidth="400dp"/>
+        android:layout_alignEnd="@+id/nextBtn" />
 
     <Button
         android:layout_width="70dp"
@@ -28,7 +27,7 @@
         android:id="@+id/pauseBtn"
         android:layout_marginLeft="10dp"
         android:layout_above="@+id/songView"
-        android:layout_alignEnd="@+id/streetView" />
+        android:layout_toEndOf="@+id/songName" />
 
     <Button
         android:layout_width="60dp"
@@ -37,23 +36,41 @@
         android:id="@+id/playBtn"
         android:layout_marginLeft="10dp"
         android:layout_centerVertical="true"
-        android:layout_toStartOf="@+id/pauseBtn" />
+        android:layout_alignStart="@+id/songView" />
+
+    <Button
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:text="@string/next"
+        android:id="@+id/nextBtn"
+        android:layout_alignTop="@+id/pauseBtn"
+        android:layout_toEndOf="@+id/pauseBtn"
+        android:layout_marginLeft="10dp" />
+
+    <Button
+        android:layout_width="90dp"
+        android:layout_height="wrap_content"
+        android:text="@string/previous"
+        android:id="@+id/prevBtn"
+        android:layout_marginLeft="10dp"
+        android:layout_alignTop="@+id/playBtn"
+        android:layout_toStartOf="@+id/streetView" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/song"
         android:id="@+id/songView"
-        android:layout_marginTop="43dp"
+        android:layout_marginTop="34dp"
         android:layout_below="@+id/playBtn"
-        android:layout_toStartOf="@+id/streetView" />
+        android:layout_toEndOf="@+id/prevBtn" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/songName"
         android:layout_alignTop="@+id/songView"
-        android:layout_toEndOf="@+id/pauseBtn" />
+        android:layout_toEndOf="@+id/playBtn" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -68,9 +85,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/albumName"
-        android:layout_toEndOf="@+id/pauseBtn"
         android:layout_alignTop="@+id/albumView"
-        android:layout_alignStart="@+id/songName" />
+        android:layout_toEndOf="@+id/playBtn" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -91,7 +107,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/viewPlaylists"
+        android:text="\@string/viewPlaylists"
         android:id="@+id/viewPlaylistBtn"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />

@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements
         intent.putExtra("ACCESS_TOKEN", ACCESS_TOKEN);
         intent.putExtra("USER_ID", USER_ID);
         intent.putExtra("PLAYLIST_ID", PLAYLIST_ID);
-        intent.putExtra("TRACK_ID", TRACK_ID);
+        //intent.putExtra("TRACK_ID", TRACK_ID);
         intent.putExtra("CLIENT_ID", CLIENT_ID);
         intent.putExtra("STREET", tempStreet);
         startActivity(intent);
@@ -351,9 +351,9 @@ public class MainActivity extends AppCompatActivity implements
                 tempStreet = split[0];
 
                 final String auto = "Auto-Generated: " + tempStreet;
-                searchSong(spotify, tempStreet);
+                //searchSong(spotify, tempStreet);
 
-/*                // Check if this playlist already exists
+               // Check if this playlist already exists
 
                 spotify.getPlaylists(USER_ID, new SpotifyCallback<Pager<PlaylistSimple>>() {
                     @Override
@@ -417,13 +417,13 @@ public class MainActivity extends AppCompatActivity implements
                         }
                     }
                 });
-*/
+
             }
         });
 
     }
 
-    private void searchSong(SpotifyService spotify, String tempStreet) {
+   /* private void searchSong(SpotifyService spotify, String tempStreet) {
         spotify.searchTracks(tempStreet, new Callback<TracksPager>() {
             @Override
             public void success(TracksPager tracksPager, retrofit.client.Response response) {
@@ -441,7 +441,7 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
 
-    }
+    }*/
 
 
     public void searchTracks(SpotifyService spotify, String streetName) {
