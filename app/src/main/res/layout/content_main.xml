@@ -12,8 +12,45 @@
     tools:context="itp341.ananth.venkateswaran.finalprojectvenkateswaranananth.MainActivity"
     tools:showIn="@layout/activity_main">
 
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:text="@string/welcome"
+        android:id="@+id/welcomeText"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="39dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="hihi"
+        android:id="@+id/location_address_view"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/welcomeText" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/startListening"
+        android:id="@+id/startButton"
+        android:layout_below="@+id/welcomeText"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="76dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/viewPlaylists"
+        android:id="@+id/viewPlaylistsBtn"
+        android:layout_alignTop="@+id/startButton"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/changeLocation"
+        android:id="@+id/changeBtn"
+        android:layout_alignTop="@+id/startButton"
+        android:layout_alignParentEnd="true" />
 </RelativeLayout>
