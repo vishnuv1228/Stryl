@@ -10,7 +10,104 @@
     tools:context="itp341.ananth.venkateswaran.finalprojectvenkateswaranananth.PlayScreen">
 
     <ImageView
+        android:layout_width="400dp"
+        android:layout_height="100dp"
+        android:id="@+id/albumArt"
+        android:src="@drawable/placeholder_car1"
+        android:contentDescription="albumArt"
+        android:layout_below="@+id/streetName"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="43dp"
+        android:maxHeight="200dp"
+        android:maxWidth="400dp"/>
+
+    <Button
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:text="@string/pause"
+        android:id="@+id/pauseBtn"
+        android:layout_marginLeft="10dp"
+        android:layout_above="@+id/songView"
+        android:layout_alignEnd="@+id/streetView" />
+
+    <Button
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:text="@string/play"
+        android:id="@+id/playBtn"
+        android:layout_marginLeft="10dp"
+        android:layout_centerVertical="true"
+        android:layout_toStartOf="@+id/pauseBtn" />
+
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/albumArt" />
+        android:text="@string/song"
+        android:id="@+id/songView"
+        android:layout_marginTop="43dp"
+        android:layout_below="@+id/playBtn"
+        android:layout_toStartOf="@+id/streetView" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/songName"
+        android:layout_alignTop="@+id/songView"
+        android:layout_toEndOf="@+id/pauseBtn" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Album"
+        android:id="@+id/albumView"
+        android:layout_below="@+id/songView"
+        android:layout_alignStart="@+id/songView"
+        android:layout_marginTop="33dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/albumName"
+        android:layout_toEndOf="@+id/pauseBtn"
+        android:layout_alignTop="@+id/albumView"
+        android:layout_alignStart="@+id/songName" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/artist"
+        android:id="@+id/artistview"
+        android:layout_below="@+id/albumView"
+        android:layout_alignStart="@+id/albumView"
+        android:layout_marginTop="31dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/artistName"
+        android:layout_alignTop="@+id/artistview"
+        android:layout_alignStart="@+id/albumName" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/viewPlaylists"
+        android:id="@+id/viewPlaylistBtn"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/youAre"
+        android:id="@+id/streetView"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/streetName"
+        android:layout_below="@+id/streetView"
+        android:layout_toEndOf="@+id/albumView" />
 </RelativeLayout>

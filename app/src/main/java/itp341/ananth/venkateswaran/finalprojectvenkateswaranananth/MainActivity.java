@@ -1,10 +1,8 @@
 package itp341.ananth.venkateswaran.finalprojectvenkateswaranananth;
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -27,12 +25,7 @@ import android.os.ResultReceiver;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
-import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.Spotify;
-import com.spotify.sdk.android.player.ConnectionStateCallback;
-import com.spotify.sdk.android.player.Player;
-import com.spotify.sdk.android.player.PlayerNotificationCallback;
-import com.spotify.sdk.android.player.PlayerState;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,7 +40,9 @@ import kaaes.spotify.webapi.android.SpotifyError;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.Playlist;
+import kaaes.spotify.webapi.android.models.PlaylistSimple;
 import kaaes.spotify.webapi.android.models.PlaylistTrack;
+import kaaes.spotify.webapi.android.models.PlaylistTracksInformation;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.TracksPager;
 import kaaes.spotify.webapi.android.models.UserPrivate;
@@ -55,10 +50,11 @@ import retrofit.Callback;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 
 public class MainActivity extends AppCompatActivity implements
-        PlayerNotificationCallback, ConnectionStateCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     // Replace with your client ID
     private static final String CLIENT_ID = "03811ad50cb64b2189131012180de7a7";
@@ -71,11 +67,16 @@ public class MainActivity extends AppCompatActivity implements
     protected static final String ADDRESS_REQUESTED_KEY = "address-request-pending";
     protected static final String LOCATION_ADDRESS_KEY = "location-address";
     private  LocationRequest mLocationRequest;
-    protected LocationManager locationManager;
+    private static String PLAYLIST_ID;
+    private static String TRACK_ID;
+    private static String USER_ID;
+    private static String ACCESS_TOKEN;
+    private static String TAG = "MainActivity";
+
 
     protected TextView mLocationAddressTextView;
 
-    private Player mPlayer;
+
 
     Button startButton;
     private String tempStreet;
@@ -84,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements
     private static final int REQUEST_CODE = 1337;
     private final ArrayList<Track> trackObjs = new ArrayList<>();
     private GoogleApiClient mGoogleApiClient;
+    private Track trackFinal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,15 +109,34 @@ public class MainActivity extends AppCompatActivity implements
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
         getLocation();
         startButton = (Button) findViewById(R.id.startButton);
+        startButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                moveToPlayScreen();
+
+
+            }
+        });
         mLocationAddressTextView = (TextView) findViewById(R.id.location_address_view);
 
+    }
+
+    private void moveToPlayScreen() {
+        Intent intent = new Intent(getApplicationContext(), PlayScreen.class);
+        intent.putExtra("ACCESS_TOKEN", ACCESS_TOKEN);
+        intent.putExtra("USER_ID", USER_ID);
+        intent.putExtra("PLAYLIST_ID", PLAYLIST_ID);
+        intent.putExtra("TRACK_ID", TRACK_ID);
+        intent.putExtra("CLIENT_ID", CLIENT_ID);
+        intent.putExtra("STREET", tempStreet);
+        startActivity(intent);
     }
 
     private void getLocation() {
         mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(10);
-        mLocationRequest.setFastestInterval(10);
+        mLocationRequest.setInterval(100);
+        mLocationRequest.setFastestInterval(100);
         if (mGoogleApiClient != null) {
             mGoogleApiClient.connect();
         }
@@ -148,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements
     public void onConnected(Bundle connectionHint) {
         // Connected to Google Play services!
         // The good stuff goes here.
-        Log.d("MainActivity", "Connected");
+        Log.d(TAG, "Connected");
 
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
 
@@ -162,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements
         try {
             addresses = geocoder.getFromLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude(), 1); //
         } catch(IOException ioe) {
-            Log.d("MainActivity", ioe.getMessage());
+            Log.d(TAG, ioe.getMessage());
         }
         if  (addresses != null && addresses.size() > 0) {
             Address address = addresses.get(0);
@@ -194,10 +215,22 @@ public class MainActivity extends AppCompatActivity implements
             mGoogleApiClient.disconnect();
         }
     }
+    protected void onPause() {
+        super.onPause();
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+    }
+    protected void onResume() {
+        super.onResume();
+        if (!mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.connect();
+        }
+    }
     protected void displayAddressOutput() {
-       // Log.d("MainActivity", mAddressOutput);
+       // Log.d(TAG, mAddressOutput);
         String [] split = tempStreet.split(" ");
-       tempStreet = split[0];
+        tempStreet = split[0];
         mLocationAddressTextView.setText(tempStreet);
 
 
@@ -224,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements
         // may occur while attempting to connect with Google.
         //
         // More about this in the 'Handle Connection Failures' section.
-        Log.i("MainActivity", "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
+        Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
     }
     @SuppressLint("ParcelCreator")
     class AddressResultReceiver extends ResultReceiver {
@@ -238,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements
             // Display the address string
             // or an error message sent from the intent service.
             mAddressOutput = resultData.getString(Constants.RESULT_DATA_KEY);
-            Log.d("MainActivity","Address: " + mAddressOutput);
+            Log.d(TAG,"Address: " + mAddressOutput);
            displayAddressOutput();
             // Show a toast message if an address was found.
             /*if (resultCode == Constants.SUCCESS_RESULT) {
@@ -277,165 +310,162 @@ public class MainActivity extends AppCompatActivity implements
         if (requestCode == REQUEST_CODE) {
             AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
             if (response.getType() == AuthenticationResponse.Type.TOKEN) {
-                Config playerConfig = new Config(this, response.getAccessToken(), CLIENT_ID);
+                ACCESS_TOKEN = response.getAccessToken();
+                searchOrMoveOn();
 
-                final String accessToken = response.getAccessToken();
-
-                RestAdapter restAdapter = new RestAdapter.Builder()
-                        .setEndpoint(SpotifyApi.SPOTIFY_WEB_API_ENDPOINT)
-                        .setRequestInterceptor(new RequestInterceptor() {
-                            @Override
-                            public void intercept(RequestFacade request) {
-                                request.addHeader("Authorization", "Bearer " + accessToken);
-                            }
-                        })
-                        .build();
-
-                final SpotifyService spotify = restAdapter.create(SpotifyService.class);
-
-                // search for songs
-                final String streetName = "Orchard";
-                searchTracks(spotify, streetName);
-
-
-                // Find the constant USER_ID value
-                spotify.getMe(new SpotifyCallback<UserPrivate>() {
-                    @Override
-                    public void failure(SpotifyError spotifyError) {
-                        Log.d("MainActivity", "Error in getting current user: " + spotifyError);
-
-                    }
-
-                    @Override
-                    public void success(UserPrivate userPrivate, retrofit.client.Response response) {
-                        Log.d("MainActivity", "Successfully found user id: " + userPrivate.id);
-                        // Create the auto-generated playlist based on tracks searched before
-                        final String USER_ID = userPrivate.id;
-                        Map<String, Object> body = new HashMap<>();
-                        body.put("name", "Auto-Generated: " + streetName);
-                        body.put("public", false);
-                        spotify.createPlaylist(USER_ID, body, new SpotifyCallback<Playlist>() {
-                            @Override
-                            public void failure(SpotifyError spotifyError) {
-                                Log.d("MainActivity", "Error in creating new playlist: " + spotifyError);
-                            }
-
-                            @Override
-                            public void success(Playlist playlist, retrofit.client.Response response) {
-                                final String PLAYLIST_ID = playlist.id;
-                                Log.d("MainActivity", "Successfully created new playlist");
-                                // Add tracks to auto-generated playlist
-                                for (int i = 0; i < trackObjs.size(); i++) {
-                                    Map<String, Object> parameters = new HashMap<>();
-                                    parameters.put("uris", trackObjs.get(i).uri);
-                                    spotify.addTracksToPlaylist(USER_ID, PLAYLIST_ID, parameters, parameters, new SpotifyCallback<Pager<PlaylistTrack>>() {
-                                        @Override
-                                        public void failure(SpotifyError spotifyError) {
-                                            Log.d("MainActivity", "Error in adding tracks to auto-generated playlist: " + spotifyError);
-                                        }
-
-                                        @Override
-                                        public void success(Pager<PlaylistTrack> playlistTrackPager, retrofit.client.Response response) {
-                                            Log.d("MainActivity", "Success in adding track to auto-generated playlist");
-                                            //Toast.makeText(getApplicationContext(), "Saved to Auto-generated Playlist", Toast.LENGTH_LONG).show();
-
-                                        }
-                                    });
-                                }
-
-
-                            }
-                        });
-
-
-                    }
-                });
-
-
-
-
-
-                mPlayer = Spotify.getPlayer(playerConfig, this, new Player.InitializationObserver() {
-                    @Override
-                    public void onInitialized(Player player) {
-                        mPlayer.addConnectionStateCallback(MainActivity.this);
-                        mPlayer.addPlayerNotificationCallback(MainActivity.this);
-                        //mPlayer.play("spotify:track:0xYcCzw9Bu4DtCqAUriVuA");
-                    }
-
-                    @Override
-                    public void onError(Throwable throwable) {
-                        Log.e("MainActivity", "Could not initialize player: " + throwable.getMessage());
-                    }
-                });
             }
         }
     }
+
+    private void searchOrMoveOn() {
+        RestAdapter restAdapter = new RestAdapter.Builder()
+                .setEndpoint(SpotifyApi.SPOTIFY_WEB_API_ENDPOINT)
+                .setRequestInterceptor(new RequestInterceptor() {
+                    @Override
+                    public void intercept(RequestFacade request) {
+                        request.addHeader("Authorization", "Bearer " + ACCESS_TOKEN);
+                    }
+                })
+                .build();
+
+        final SpotifyService spotify = restAdapter.create(SpotifyService.class);
+
+
+
+
+        // Find the constant USER_ID value
+        spotify.getMe(new SpotifyCallback<UserPrivate>() {
+            @Override
+            public void failure(SpotifyError spotifyError) {
+                Log.d(TAG, "Error in getting current user: " + spotifyError);
+
+            }
+
+            @Override
+            public void success(UserPrivate userPrivate, retrofit.client.Response response) {
+                Log.d(TAG, "Successfully found user id: " + userPrivate.id);
+                // Create the auto-generated playlist based on tracks searched before
+                USER_ID = userPrivate.id;
+
+                String split [] = tempStreet.split(" ");
+                tempStreet = split[0];
+
+                final String auto = "Auto-Generated: " + tempStreet;
+                searchSong(spotify, tempStreet);
+
+/*                // Check if this playlist already exists
+
+                spotify.getPlaylists(USER_ID, new SpotifyCallback<Pager<PlaylistSimple>>() {
+                    @Override
+                    public void failure(SpotifyError spotifyError) {
+                        Log.d(TAG, "Error in getting user's playlists: " + spotifyError);
+                    }
+
+                    @Override
+                    public void success(Pager<PlaylistSimple> playlistSimplePager, Response response) {
+                        Boolean exists = false;
+                        Log.d(TAG, "Success in getting user's playlists");
+                        List<PlaylistSimple> playlists = playlistSimplePager.items;
+                        for (PlaylistSimple playlist : playlists) {
+                            Log.d(TAG, "Retrieved Playlist: " + playlist.name);
+                            if (playlist.name.equals(auto)) {
+                                Log.d(TAG, "Default Playlist EXISTS");
+                                PLAYLIST_ID = playlist.id;
+                                moveToPlayScreen();
+                                exists = true;
+
+                            }
+                        }
+                        if (!exists) {
+                            // search for songs
+                            searchTracks(spotify, tempStreet);
+                            Map<String, Object> body = new HashMap<>();
+                            body.put("name", auto);
+                            body.put("public", false);
+                            spotify.createPlaylist(USER_ID, body, new SpotifyCallback<Playlist>() {
+                                @Override
+                                public void failure(SpotifyError spotifyError) {
+                                    Log.d(TAG, "Error in creating new playlist: " + spotifyError);
+                                }
+
+                                @Override
+                                public void success(Playlist playlist, retrofit.client.Response response) {
+                                    PLAYLIST_ID = playlist.id;
+                                    Log.d(TAG, "Successfully created new playlist");
+                                    // Add tracks to auto-generated playlist
+                                    for (int i = 0; i < trackObjs.size(); i++) {
+                                        Map<String, Object> parameters = new HashMap<>();
+                                        parameters.put("uris", trackObjs.get(i).uri);
+                                        spotify.addTracksToPlaylist(USER_ID, PLAYLIST_ID, parameters, parameters, new SpotifyCallback<Pager<PlaylistTrack>>() {
+                                            @Override
+                                            public void failure(SpotifyError spotifyError) {
+                                                Log.d(TAG, "Error in adding tracks to auto-generated playlist: " + spotifyError);
+                                            }
+
+                                            @Override
+                                            public void success(Pager<PlaylistTrack> playlistTrackPager, retrofit.client.Response response) {
+                                                Log.d(TAG, "Success in adding track to auto-generated playlist");
+                                                //Toast.makeText(getApplicationContext(), "Saved to Auto-generated Playlist", Toast.LENGTH_LONG).show();
+
+                                            }
+                                        });
+                                    }
+
+
+                                }
+                            });
+                        }
+                    }
+                });
+*/
+            }
+        });
+
+    }
+
+    private void searchSong(SpotifyService spotify, String tempStreet) {
+        spotify.searchTracks(tempStreet, new Callback<TracksPager>() {
+            @Override
+            public void success(TracksPager tracksPager, retrofit.client.Response response) {
+                Log.d(TAG, "Successfully searched for tracks");
+                Pager<Track> pt = tracksPager.tracks;
+                trackFinal = pt.items.get(0);
+                TRACK_ID = trackFinal.id;
+                Log.d(TAG, "TRACK ID: " + TRACK_ID);
+
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Log.d(TAG, "Error in search tracks: " + error);
+            }
+        });
+
+    }
+
+
     public void searchTracks(SpotifyService spotify, String streetName) {
         spotify.searchTracks(streetName, new Callback<TracksPager>() {
             @Override
             public void success(TracksPager tracksPager, retrofit.client.Response response) {
-                Log.d("MainActivity", "Successfully searched for tracks");
+                Log.d(TAG, "Successfully searched for tracks");
                 Pager<Track> pt = tracksPager.tracks;
                 for (int i = 0; i < pt.items.size(); i++) {
                     Track track = pt.items.get(i);
                     trackObjs.add(track);
+                    Log.d(TAG, track.name);
                 }
 
             }
 
             @Override
             public void failure(RetrofitError error) {
-                Log.d("MainActivity", "Error in search tracks: " + error);
+                Log.d(TAG, "Error in search tracks: " + error);
             }
         });
 
     }
 
-    @Override
-    public void onLoggedIn() {
-        Log.d("MainActivity", "User logged in");
-    }
-
-    @Override
-    public void onLoggedOut() {
-        Log.d("MainActivity", "User logged out");
-    }
-
-    @Override
-    public void onLoginFailed(Throwable error) {
-        Log.d("MainActivity", "Login failed");
-    }
-
-    @Override
-    public void onTemporaryError() {
-        Log.d("MainActivity", "Temporary error occurred");
-    }
-
-    @Override
-    public void onConnectionMessage(String message) {
-        Log.d("MainActivity", "Received connection message: " + message);
-    }
-
-    @Override
-    public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
-        Log.d("MainActivity", "Playback event received: " + eventType.name());
-        switch (eventType) {
-            // Handle event type as necessary
-            default:
-                break;
-        }
-    }
-
-    @Override
-    public void onPlaybackError(ErrorType errorType, String errorDetails) {
-        Log.d("MainActivity", "Playback error received: " + errorType.name());
-        switch (errorType) {
-            // Handle error type as necessary
-            default:
-                break;
-        }
-    }
 
     @Override
     protected void onDestroy() {
