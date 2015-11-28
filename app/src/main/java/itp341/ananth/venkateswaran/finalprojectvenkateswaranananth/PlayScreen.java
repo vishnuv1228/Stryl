@@ -115,12 +115,43 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
                     trackObjs.add(track.track);
                 }
                 Config playerConfig = new Config(getApplicationContext(), SPOTIFY_ACCESS_TOKEN, SPOTIFY_CLIENT_ID);
+
                 mPlayer = Spotify.getPlayer(playerConfig, this, new Player.InitializationObserver() {
                     @Override
-                    public void onInitialized(Player player) {
-                        mPlayer.addConnectionStateCallback(PlayScreen.this);
-                        mPlayer.addPlayerNotificationCallback(PlayScreen.this);
-                        mPlayer.play(tracksInPlaylist);
+                    public void onInitialized(final Player player) {
+                        player.getPlayerState(new PlayerStateCallback() {
+                            @Override
+                            public void onPlayerState(PlayerState playerState) {
+                                if (!playerState.playing)  {
+
+                                    mPlayer.addConnectionStateCallback(PlayScreen.this);
+                                    mPlayer.addPlayerNotificationCallback(PlayScreen.this);
+                                    mPlayer.play(tracksInPlaylist);
+                                }
+                                else {
+
+
+
+                                    for(int i = 0; i < tracksInPlaylist.size(); i++) {
+                                        if (tracksInPlaylist.get(i).equals(playerState.trackUri)) {
+                                            // Update titles
+                                            songTitle.setText(trackObjs.get(i).name);
+                                            albumTitle.setText(trackObjs.get(i).album.name);
+                                            artistTitle.setText(trackObjs.get(i).artists.get(0).name);
+                                            // Update album art
+                                            Image image = trackObjs.get(i).album.images.get(0);
+                                            Picasso.with(getApplicationContext()).load(image.url).into(albumArt);
+
+                                            TRACK_NAME = trackObjs.get(i).name;
+                                        }
+
+                                    }
+                                }
+                            }
+                        });
+
+
+
                     }
 
                     @Override
@@ -128,6 +159,7 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
                         Log.e(TAG, "Could not initialize player: " + throwable.getMessage());
                     }
                 });
+
 
             }
         });
@@ -232,7 +264,7 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
         Intent intent = new Intent();
         intent.putExtra("TRACK_NAME", TRACK_NAME);
         this.setResult(Activity.RESULT_OK, intent);
-
+        Spotify.destroyPlayer(this);
         super.finish();
     }
     @Override
