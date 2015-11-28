@@ -24,7 +24,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="hihi"
+        android:text="@string/location"
         android:id="@+id/location_address_view"
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/welcomeText" />
@@ -34,9 +34,9 @@
         android:layout_height="wrap_content"
         android:text="@string/startListening"
         android:id="@+id/startButton"
-        android:layout_below="@+id/welcomeText"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="76dp" />
+        android:layout_marginTop="59dp"
+        android:layout_below="@+id/location_address_view"
+        android:layout_toStartOf="@+id/location_address_view" />
 
     <Button
         android:layout_width="wrap_content"
@@ -44,13 +44,6 @@
         android:text="@string/viewPlaylists"
         android:id="@+id/viewPlaylistsBtn"
         android:layout_alignTop="@+id/startButton"
-        android:layout_centerHorizontal="true" />
+        android:layout_toEndOf="@+id/location_address_view" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/changeLocation"
-        android:id="@+id/changeBtn"
-        android:layout_alignTop="@+id/startButton"
-        android:layout_alignParentEnd="true" />
 </RelativeLayout>

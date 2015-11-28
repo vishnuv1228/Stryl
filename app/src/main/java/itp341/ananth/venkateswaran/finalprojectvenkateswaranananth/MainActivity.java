@@ -12,8 +12,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -28,7 +26,6 @@ import com.spotify.sdk.android.authentication.AuthenticationResponse;
 import com.spotify.sdk.android.player.Spotify;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -42,7 +39,6 @@ import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.Playlist;
 import kaaes.spotify.webapi.android.models.PlaylistSimple;
 import kaaes.spotify.webapi.android.models.PlaylistTrack;
-import kaaes.spotify.webapi.android.models.PlaylistTracksInformation;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.TracksPager;
 import kaaes.spotify.webapi.android.models.UserPrivate;
@@ -57,9 +53,9 @@ public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     // Replace with your client ID
-    private static final String CLIENT_ID = "03811ad50cb64b2189131012180de7a7";
+    private static final String CLIENT_ID = "6d021f7f3c7b443da63f8362a22374d8";
     //  Replace with your redirect URI
-    private static final String REDIRECT_URI = "my-first-android-app-login://callback";
+    private static final String REDIRECT_URI = "stryl-login://callback";
     private Location mLastLocation;
     protected boolean mAddressRequested;
     protected String mAddressOutput;
@@ -68,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements
     protected static final String LOCATION_ADDRESS_KEY = "location-address";
     private  LocationRequest mLocationRequest;
     private static String PLAYLIST_ID;
-    private static String TRACK_ID;
+    //private static String TRACK_ID;
     private static String USER_ID;
     private static String ACCESS_TOKEN;
     private static String TAG = "MainActivity";
@@ -79,13 +75,12 @@ public class MainActivity extends AppCompatActivity implements
 
 
     Button startButton;
+    Button playlistButton;
     private String tempStreet;
     // Request code that will be used to verify if the result comes from correct activity
-// Can be any integer
+    // Can be any integer
     private static final int REQUEST_CODE = 1337;
-    private final ArrayList<Track> trackObjs = new ArrayList<>();
     private GoogleApiClient mGoogleApiClient;
-    private Track trackFinal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,6 +110,18 @@ public class MainActivity extends AppCompatActivity implements
                 moveToPlayScreen();
 
 
+            }
+        });
+        playlistButton = (Button) findViewById(R.id.viewPlaylistsBtn);
+        playlistButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent i = new Intent(getApplicationContext(), PlaylistScreen.class);
+                i.putExtra("CLIENT_ID", CLIENT_ID);
+                i.putExtra("USER_ID", USER_ID);
+                i.putExtra("ACCESS_TOKEN", ACCESS_TOKEN);
+                startActivity(i);
             }
         });
         mLocationAddressTextView = (TextView) findViewById(R.id.location_address_view);
@@ -152,6 +159,7 @@ public class MainActivity extends AppCompatActivity implements
             // and stored in the Bundle. If it was found, display the address string in the UI.
             if (savedInstanceState.keySet().contains(LOCATION_ADDRESS_KEY)) {
                 mAddressOutput = savedInstanceState.getString(LOCATION_ADDRESS_KEY);
+                tempStreet = mAddressOutput;
                 displayAddressOutput();
             }
         }
@@ -452,21 +460,12 @@ public class MainActivity extends AppCompatActivity implements
     }*/
 
 
-    public void searchTracks(SpotifyService spotify, String streetName) {
-
-    }
-
-
     @Override
     protected void onDestroy() {
         // VERY IMPORTANT! This must always be called or else you will leak resources
         Spotify.destroyPlayer(this);
         super.onDestroy();
     }
-    protected void showToast(String text) {
-        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
-    }
-
 
 
 }

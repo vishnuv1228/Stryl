@@ -1,41 +1,26 @@
 package itp341.ananth.venkateswaran.finalprojectvenkateswaranananth;
-
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.ImageReader;
-import android.net.Uri;
-import android.os.AsyncTask;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.PlayerNotificationCallback;
 import com.spotify.sdk.android.player.PlayerState;
-import com.spotify.sdk.android.player.PlayerStateCallback;
 import com.spotify.sdk.android.player.Spotify;
 import com.squareup.picasso.Picasso;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
-
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyCallback;
 import kaaes.spotify.webapi.android.SpotifyError;
 import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.AlbumSimple;
 import kaaes.spotify.webapi.android.models.Image;
 import kaaes.spotify.webapi.android.models.Playlist;
 import kaaes.spotify.webapi.android.models.PlaylistTrack;
@@ -47,11 +32,7 @@ import retrofit.client.Response;
 public class PlayScreen extends AppCompatActivity implements PlayerNotificationCallback, ConnectionStateCallback {
 
     private static String SPOTIFY_ACCESS_TOKEN;
-    private static String SPOTIFY_USER_ID;
-    private static String SPOTIFY_PLAYLIST_ID;
     private static String SPOTIFY_CLIENT_ID;
-    private static String STREET_NAME;
-    private static String SPOTIFY_TRACK_ID;
     private static final String TAG = "PlayScreen";
     private Player mPlayer;
     private ArrayList<String> tracksInPlaylist;
@@ -68,8 +49,6 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
     Button playlist;
     ImageView albumArt;
 
-    private Track finalTrack;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,12 +58,12 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
         trackObjs = new ArrayList<>();
 
         SPOTIFY_ACCESS_TOKEN = getIntent().getStringExtra("ACCESS_TOKEN");
-        SPOTIFY_USER_ID = getIntent().getStringExtra("USER_ID");
-        SPOTIFY_TRACK_ID = getIntent().getStringExtra("TRACK_ID");
+        final String SPOTIFY_USER_ID = getIntent().getStringExtra("USER_ID");
+        String SPOTIFY_TRACK_ID = getIntent().getStringExtra("TRACK_ID");
         Log.d(TAG, "TRACK ID: " + SPOTIFY_TRACK_ID);
-       SPOTIFY_PLAYLIST_ID = getIntent().getStringExtra("PLAYLIST_ID");
+        String SPOTIFY_PLAYLIST_ID = getIntent().getStringExtra("PLAYLIST_ID");
         SPOTIFY_CLIENT_ID = getIntent().getStringExtra("CLIENT_ID");
-        STREET_NAME = getIntent().getStringExtra("STREET");
+        String STREET_NAME = getIntent().getStringExtra("STREET");
 
         // Grab an instance of spotify
         RestAdapter restAdapter = new RestAdapter.Builder()
@@ -152,7 +131,7 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
         albumTitle = (TextView) findViewById(R.id.albumName);
         artistTitle = (TextView) findViewById(R.id.artistName);
 
-        playlist = (Button) findViewById(R.id.viewPlaylistsBtn);
+        playlist = (Button) findViewById(R.id.viewPlaylistBtn);
 
 
     // Get current playlist and add into list of tracks
@@ -214,6 +193,17 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
             @Override
             public void onClick(View v) {
                 mPlayer.skipToNext();
+            }
+        });
+
+        // Playlist button listener
+        playlist.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getApplicationContext(), PlaylistScreen.class);
+                i.putExtra("USER_ID", SPOTIFY_USER_ID);
+                i.putExtra("ACCESS_TOKEN", SPOTIFY_ACCESS_TOKEN);
+                startActivity(i);
             }
         });
 
