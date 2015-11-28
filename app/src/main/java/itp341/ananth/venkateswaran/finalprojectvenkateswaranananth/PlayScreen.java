@@ -1,5 +1,5 @@
 package itp341.ananth.venkateswaran.finalprojectvenkateswaranananth;
-import android.content.DialogInterface;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -14,9 +14,13 @@ import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.PlayerNotificationCallback;
 import com.spotify.sdk.android.player.PlayerState;
+import com.spotify.sdk.android.player.PlayerStateCallback;
 import com.spotify.sdk.android.player.Spotify;
 import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyCallback;
 import kaaes.spotify.webapi.android.SpotifyError;
@@ -37,7 +41,7 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
     private Player mPlayer;
     private ArrayList<String> tracksInPlaylist;
     private ArrayList<Track> trackObjs;
-
+    private SpotifyService spotify;
     TextView street;
     Button previous;
     Button play;
@@ -49,6 +53,8 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
     Button playlist;
     ImageView albumArt;
 
+    private String TRACK_NAME;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,8 +65,6 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
 
         SPOTIFY_ACCESS_TOKEN = getIntent().getStringExtra("ACCESS_TOKEN");
         final String SPOTIFY_USER_ID = getIntent().getStringExtra("USER_ID");
-        String SPOTIFY_TRACK_ID = getIntent().getStringExtra("TRACK_ID");
-        Log.d(TAG, "TRACK ID: " + SPOTIFY_TRACK_ID);
         String SPOTIFY_PLAYLIST_ID = getIntent().getStringExtra("PLAYLIST_ID");
         SPOTIFY_CLIENT_ID = getIntent().getStringExtra("CLIENT_ID");
         String STREET_NAME = getIntent().getStringExtra("STREET");
@@ -75,57 +79,16 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
                     }
                 })
                 .build();
-        final SpotifyService spotify = restAdapter.create(SpotifyService.class);
-
-        /*HashMap<String, Object> map = new HashMap<>();
-        map.put("country", "US");
-        spotify.getTrack(SPOTIFY_TRACK_ID, map, new SpotifyCallback<Track>() {
-            @Override
-            public void failure(SpotifyError spotifyError) {
-                Log.d(TAG, "Error in finding track: " + spotifyError);
-            }
-
-            @Override
-            public void success(final Track track, Response response) {
-                Log.d(TAG, "Found track: " + track.name);
-                // Update titles
-                songTitle.setText(track.name);
-                albumTitle.setText(track.album.name);
-                artistTitle.setText(track.artists.get(0).name);
-                // Update album art
-                Image image = track.album.images.get(0);
-                Picasso.with(getApplicationContext()).load(image.url).into(albumArt);
-                Config playerConfig = new Config(getApplicationContext(), SPOTIFY_ACCESS_TOKEN, SPOTIFY_CLIENT_ID);
-
-
-                mPlayer = Spotify.getPlayer(playerConfig, this, new Player.InitializationObserver() {
-                    @Override
-                    public void onInitialized(Player player) {
-                        mPlayer.addConnectionStateCallback(PlayScreen.this);
-                        mPlayer.addPlayerNotificationCallback(PlayScreen.this);
-                        mPlayer.play(track.uri);
-                    }
-
-                    @Override
-                    public void onError(Throwable throwable) {
-                        Log.e(TAG, "Could not initialize player: " + throwable.getMessage());
-                    }
-                });
-
-            }
-        });*/
-       // finalTrack = spotify.getTrack(SPOTIFY_TRACK_ID, map);
-
-
+        spotify = restAdapter.create(SpotifyService.class);
 
         street = (TextView) findViewById(R.id.streetView);
         street.append(" " + STREET_NAME);
 
         albumArt = (ImageView) findViewById(R.id.albumArt);
-       previous = (Button) findViewById(R.id.prevBtn);
+        previous = (Button) findViewById(R.id.prevBtn);
         play = (Button) findViewById(R.id.playBtn);
         pause = (Button) findViewById(R.id.pauseBtn);
-       next = (Button) findViewById(R.id.nextBtn);
+        next = (Button) findViewById(R.id.nextBtn);
 
         songTitle = (TextView) findViewById(R.id.songName);
         albumTitle = (TextView) findViewById(R.id.albumName);
@@ -237,11 +200,6 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
     @Override
     public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
         Log.d(TAG, "Playback event received: " + eventType.name());
-        switch (eventType) {
-            // Handle event type as necessary
-            default:
-                break;
-        }
         if (eventType.equals(EventType.TRACK_CHANGED)) {
             for(int i = 0; i < tracksInPlaylist.size(); i++) {
                 if (tracksInPlaylist.get(i).equals(playerState.trackUri)) {
@@ -253,7 +211,7 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
                     Image image = trackObjs.get(i).album.images.get(0);
                     Picasso.with(getApplicationContext()).load(image.url).into(albumArt);
 
-
+                    TRACK_NAME = trackObjs.get(i).name;
                 }
 
             }
@@ -270,6 +228,17 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
                 break;
         }
     }
+    public void finish() {
+        Intent intent = new Intent();
+        intent.putExtra("TRACK_NAME", TRACK_NAME);
+        this.setResult(Activity.RESULT_OK, intent);
 
-
+        super.finish();
+    }
+    @Override
+    protected void onDestroy() {
+        // VERY IMPORTANT! This must always be called or else you will leak resources
+        Spotify.destroyPlayer(this);
+        super.onDestroy();
+    }
 }

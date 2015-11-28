@@ -1,6 +1,8 @@
 package itp341.ananth.venkateswaran.finalprojectvenkateswaranananth;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Location;
 import android.os.Bundle;
@@ -64,23 +66,30 @@ public class MainActivity extends AppCompatActivity implements
     protected static final String LOCATION_ADDRESS_KEY = "location-address";
     private  LocationRequest mLocationRequest;
     private static String PLAYLIST_ID;
-    //private static String TRACK_ID;
     private static String USER_ID;
     private static String ACCESS_TOKEN;
     private static String TAG = "MainActivity";
 
 
-    protected TextView mLocationAddressTextView;
-
-
-
+    TextView mLocationAddressTextView;
+    TextView lastPlayed;
     Button startButton;
     Button playlistButton;
+
+    SharedPreferences sharedPreferences;
+    public static final String MyPREFERENCES = "MyPrefs";
+    public static final String TrackName = "TrackNameKey";
+
     private String tempStreet;
     // Request code that will be used to verify if the result comes from correct activity
     // Can be any integer
     private static final int REQUEST_CODE = 1337;
+    private static final int TRACK_REQUEST = 12;
     private GoogleApiClient mGoogleApiClient;
+
+    private String TRACK_NAME = "Nothing";
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +101,16 @@ public class MainActivity extends AppCompatActivity implements
         mResultReceiver = new AddressResultReceiver(new Handler());
         mAddressOutput = "";
         mAddressRequested = false;
+
+        lastPlayed = (TextView) findViewById(R.id.lastPlayed);
+
+
+        String value = getPrefString(getApplicationContext(), TrackName, "TrackNameKey");
+        if (!value.equals("TrackNameKey")) {
+            lastPlayed.setText("You last played " + value);
+        }
+
+
 
         updateValuesFromBundle(savedInstanceState);
         buildGoogleApiClient();
@@ -127,6 +146,17 @@ public class MainActivity extends AppCompatActivity implements
         mLocationAddressTextView = (TextView) findViewById(R.id.location_address_view);
 
     }
+    public static void SaveInPreference(Context mContext, String key, String objString) {
+        SharedPreferences.Editor editor = mContext.getSharedPreferences(mContext.getString(R.string.app_name),
+                Context.MODE_PRIVATE).edit();
+        editor.putString(key, objString);
+        editor.apply();
+    }
+    public static String getPrefString(Context mContext, final String key, final String defaultStr) {
+        SharedPreferences pref = mContext.getSharedPreferences(mContext.getString(R.string.app_name),
+                Context.MODE_PRIVATE);
+        return pref.getString(key, defaultStr);
+    }
 
     private void moveToPlayScreen() {
         Intent intent = new Intent(getApplicationContext(), PlayScreen.class);
@@ -136,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements
         //intent.putExtra("TRACK_ID", TRACK_ID);
         intent.putExtra("CLIENT_ID", CLIENT_ID);
         intent.putExtra("STREET", tempStreet);
-        startActivity(intent);
+        startActivityForResult(intent, TRACK_REQUEST);
     }
 
     private void getLocation() {
@@ -280,12 +310,7 @@ public class MainActivity extends AppCompatActivity implements
             // or an error message sent from the intent service.
             mAddressOutput = resultData.getString(Constants.RESULT_DATA_KEY);
             Log.d(TAG,"Address: " + mAddressOutput);
-           displayAddressOutput();
-            // Show a toast message if an address was found.
-            /*if (resultCode == Constants.SUCCESS_RESULT) {
-                showToast(getString(R.string.address_found));
-            }*/
-
+            displayAddressOutput();
         }
     }
     @Override
@@ -313,7 +338,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-
+        Log.d(TAG, "REQUEST CODE: " + requestCode);
         // Check if result comes from the correct activity
         if (requestCode == REQUEST_CODE) {
             AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
@@ -321,6 +346,15 @@ public class MainActivity extends AppCompatActivity implements
                 ACCESS_TOKEN = response.getAccessToken();
                 searchOrMoveOn();
 
+            }
+        } // Check what the previous track was
+        else if (requestCode == TRACK_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                Log.d(TAG, "IN HERE TRACK: " + intent.getStringExtra("TRACK_NAME"));
+                TRACK_NAME = intent.getStringExtra("TRACK_NAME");
+                // Shared Preferences
+                SaveInPreference(getApplicationContext(), TrackName, TRACK_NAME);
+                lastPlayed.setText("You last played " + TRACK_NAME);
             }
         }
     }
@@ -355,13 +389,12 @@ public class MainActivity extends AppCompatActivity implements
                 // Create the auto-generated playlist based on tracks searched before
                 USER_ID = userPrivate.id;
 
-                String split [] = tempStreet.split(" ");
+                String split[] = tempStreet.split(" ");
                 tempStreet = split[0];
 
                 final String auto = "Auto-Generated: " + tempStreet;
-                //searchSong(spotify, tempStreet);
 
-               // Check if this playlist already exists
+                // Check if this playlist already exists
 
                 spotify.getPlaylists(USER_ID, new SpotifyCallback<Pager<PlaylistSimple>>() {
                     @Override
@@ -416,13 +449,13 @@ public class MainActivity extends AppCompatActivity implements
                                                     @Override
                                                     public void success(Pager<PlaylistTrack> playlistTrackPager, retrofit.client.Response response) {
                                                         Log.d(TAG, "Success in adding track to auto-generated playlist");
-                                                        //Toast.makeText(getApplicationContext(), "Saved to Auto-generated Playlist", Toast.LENGTH_LONG).show();
 
                                                     }
                                                 });
                                             }
 
                                         }
+
                                         @Override
                                         public void failure(RetrofitError error) {
                                             Log.d(TAG, "Error in search tracks: " + error);
@@ -438,35 +471,6 @@ public class MainActivity extends AppCompatActivity implements
         });
 
     }
-
-   /* private void searchSong(SpotifyService spotify, String tempStreet) {
-        spotify.searchTracks(tempStreet, new Callback<TracksPager>() {
-            @Override
-            public void success(TracksPager tracksPager, retrofit.client.Response response) {
-                Log.d(TAG, "Successfully searched for tracks");
-                Pager<Track> pt = tracksPager.tracks;
-                trackFinal = pt.items.get(0);
-                TRACK_ID = trackFinal.id;
-                Log.d(TAG, "TRACK ID: " + TRACK_ID);
-
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Log.d(TAG, "Error in search tracks: " + error);
-            }
-        });
-
-    }*/
-
-
-    @Override
-    protected void onDestroy() {
-        // VERY IMPORTANT! This must always be called or else you will leak resources
-        Spotify.destroyPlayer(this);
-        super.onDestroy();
-    }
-
 
 }
 
