@@ -8,7 +8,7 @@ android {
     defaultConfig {
         applicationId "itp341.ananth.venkateswaran.finalprojectvenkateswaranananth"
         minSdkVersion 22
-        targetSdkVersion 23
+        targetSdkVersion 22
         versionCode 1
         versionName "1.0"
     }
@@ -30,7 +30,7 @@ repositories {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
-    compile 'com.google.android.gms:play-services:8.3.0'
+    compile 'com.google.android.gms:play-services:8.1+'
     // This library handles authentication and authorization
     compile 'com.spotify.sdk:spotify-auth:1.0.0-beta11@aar'
 

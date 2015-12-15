@@ -385,7 +385,7 @@ public class MainActivity extends AppCompatActivity implements
 
             @Override
             public void success(UserPrivate userPrivate, retrofit.client.Response response) {
-                Log.d(TAG, "Successfully found user id: " + userPrivate.id);
+                Log.d(TAG, "Successfully found user id: " + userPrivate.id + " " + tempStreet);
                 // Create the auto-generated playlist based on tracks searched before
                 USER_ID = userPrivate.id;
 

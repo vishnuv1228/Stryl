@@ -24,8 +24,12 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:layout_alignParentLeft="true"
         android:text="@string/song"
         android:id="@+id/songView"
+        android:maxLines="1"
+        android:layout_gravity="fill"
         android:layout_marginTop="31dp"
         android:layout_marginEnd="33dp"
         android:layout_below="@+id/linearLayout"
@@ -34,6 +38,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
         android:id="@+id/songName"
         android:layout_alignTop="@+id/songView"
         android:layout_alignEnd="@+id/streetView" />
@@ -41,7 +46,9 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Album"
+        android:layout_alignParentLeft="true"
+        android:fontFamily="sans-serif-medium"
+        android:text="@string/album"
         android:id="@+id/albumView"
         android:layout_below="@+id/songView"
         android:layout_alignStart="@+id/songView"
@@ -50,6 +57,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
         android:id="@+id/albumName"
         android:layout_alignTop="@+id/albumView"
         android:layout_alignStart="@+id/songName" />
@@ -57,6 +65,8 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:fontFamily="sans-serif-medium"
         android:text="@string/artist"
         android:id="@+id/artistview"
         android:layout_below="@+id/albumView"
@@ -66,6 +76,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
         android:id="@+id/artistName"
         android:layout_alignTop="@+id/artistview"
         android:layout_alignStart="@+id/albumName" />
@@ -73,6 +84,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
         android:text="@string/viewPlaylists"
         android:id="@+id/viewPlaylistBtn"
         android:layout_alignParentBottom="true"
@@ -81,6 +93,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
         android:text="@string/youAre"
         android:id="@+id/streetView"
         android:layout_alignParentTop="true"
@@ -95,41 +108,48 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="41dp">
 
-        <Button
-            android:layout_width="90dp"
+        <ImageButton
+            android:layout_width="62dp"
             android:layout_height="wrap_content"
-            android:text="@string/previous"
+            android:src="@drawable/previous"
+            android:scaleType="fitXY"
             android:id="@+id/prevBtn"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="25dp"
             android:textSize="12sp"
             android:layout_above="@+id/songView"
             android:layout_toStartOf="@+id/streetView" />
 
-        <Button
+        <ImageButton
             android:layout_width="62dp"
             android:layout_height="wrap_content"
             android:text="@string/pause"
             android:id="@+id/pauseBtn"
+            android:src="@drawable/stop"
+            android:scaleType="fitXY"
             android:layout_marginLeft="10dp"
             android:layout_alignTop="@+id/playBtn"
             android:layout_toEndOf="@+id/songName"
             android:textSize="12sp"/>
 
-        <Button
+        <ImageButton
             android:layout_width="60dp"
             android:layout_height="wrap_content"
             android:text="@string/play"
             android:id="@+id/playBtn"
+            android:src="@drawable/play"
+            android:scaleType="fitXY"
             android:layout_marginLeft="10dp"
             android:layout_centerVertical="true"
             android:textSize="12sp"
             android:layout_alignStart="@+id/streetView" />
 
-        <Button
+        <ImageButton
             android:layout_width="60dp"
             android:layout_height="wrap_content"
             android:text="@string/next"
             android:id="@+id/nextBtn"
+            android:src="@drawable/next"
+            android:scaleType="fitXY"
             android:layout_marginLeft="10dp"
             android:textSize="12sp"
             android:layout_alignTop="@+id/pauseBtn"

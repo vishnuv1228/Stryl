@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,8 +19,6 @@ import com.spotify.sdk.android.player.PlayerStateCallback;
 import com.spotify.sdk.android.player.Spotify;
 import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyCallback;
@@ -41,12 +40,11 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
     private Player mPlayer;
     private ArrayList<String> tracksInPlaylist;
     private ArrayList<Track> trackObjs;
-    private SpotifyService spotify;
     TextView street;
-    Button previous;
-    Button play;
-    Button pause;
-    Button next;
+    ImageButton previous;
+    ImageButton play;
+    ImageButton pause;
+    ImageButton next;
     TextView songTitle;
     TextView albumTitle;
     TextView artistTitle;
@@ -79,16 +77,16 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
                     }
                 })
                 .build();
-        spotify = restAdapter.create(SpotifyService.class);
+        SpotifyService spotify = restAdapter.create(SpotifyService.class);
 
         street = (TextView) findViewById(R.id.streetView);
         street.append(" " + STREET_NAME);
 
         albumArt = (ImageView) findViewById(R.id.albumArt);
-        previous = (Button) findViewById(R.id.prevBtn);
-        play = (Button) findViewById(R.id.playBtn);
-        pause = (Button) findViewById(R.id.pauseBtn);
-        next = (Button) findViewById(R.id.nextBtn);
+        previous = (ImageButton) findViewById(R.id.prevBtn);
+        play = (ImageButton) findViewById(R.id.playBtn);
+        pause = (ImageButton) findViewById(R.id.pauseBtn);
+        next = (ImageButton) findViewById(R.id.nextBtn);
 
         songTitle = (TextView) findViewById(R.id.songName);
         albumTitle = (TextView) findViewById(R.id.albumName);
@@ -103,7 +101,7 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
             @Override
             public void failure(SpotifyError spotifyError) {
                 Log.d(TAG, "Error in getting playlist: " + spotifyError);
-               // Toast.makeText(getApplicationContext(), "Could not query the spotify servers", Toast.LENGTH_LONG);
+                // Toast.makeText(getApplicationContext(), "Could not query the spotify servers", Toast.LENGTH_LONG);
                 finish();
             }
 
@@ -122,17 +120,15 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
                         player.getPlayerState(new PlayerStateCallback() {
                             @Override
                             public void onPlayerState(PlayerState playerState) {
-                                if (!playerState.playing)  {
+                                if (!playerState.playing) {
 
                                     mPlayer.addConnectionStateCallback(PlayScreen.this);
                                     mPlayer.addPlayerNotificationCallback(PlayScreen.this);
                                     mPlayer.play(tracksInPlaylist);
-                                }
-                                else {
+                                } else {
 
 
-
-                                    for(int i = 0; i < tracksInPlaylist.size(); i++) {
+                                    for (int i = 0; i < tracksInPlaylist.size(); i++) {
                                         if (tracksInPlaylist.get(i).equals(playerState.trackUri)) {
                                             // Update titles
                                             songTitle.setText(trackObjs.get(i).name);
@@ -149,7 +145,6 @@ public class PlayScreen extends AppCompatActivity implements PlayerNotificationC
                                 }
                             }
                         });
-
 
 
                     }
