@@ -27,6 +27,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-medium"
         android:text="@string/location"
+        android:textStyle="bold"
         android:id="@+id/location_address_view"
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/welcomeText" />
@@ -53,6 +54,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-medium"
         android:id="@+id/lastPlayed"
+        android:textStyle="bold"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
 
